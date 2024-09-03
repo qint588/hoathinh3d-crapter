@@ -7,8 +7,11 @@ const getFullUrl = (req) => {
   return `${req.protocol}://${req.get("host")}`;
 };
 
-const fetchNewest = async (page = 1) => {
-  const htmlResponse = await axios.get(`${pathDec}/page/${page}`);
+const fetchMovie = async (page = 1, slug = null) => {
+  const fullUrl = `${pathDec}/${slug ? slug + "/" : ""}page/${page}`;
+  console.log({ fullUrl });
+
+  const htmlResponse = await axios.get(fullUrl);
   const html = htmlResponse.data ?? "";
   const $ = cheerio.load(html);
 
@@ -268,7 +271,7 @@ const renderEmbed = (res, episodeId, episodeName, episodeSlug, serverId) => {
 };
 
 module.exports = {
-  fetchNewest,
+  fetchMovie,
   fetchImageStream,
   fetchCategories,
   getFullUrl,

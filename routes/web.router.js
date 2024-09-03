@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  fetchNewest,
+  fetchMovie,
   getFullUrl,
   fetchImageStream,
   fetchCategories,
@@ -23,7 +23,7 @@ router.get("/", (req, res) => {
   });
 });
 
-router.get("/detail/:slug", async (req, res) => {
+router.get("/chi-tiet/:slug", async (req, res) => {
   const data = await fetchDetail(req?.params?.slug);
   res.json({
     data,
@@ -32,15 +32,26 @@ router.get("/detail/:slug", async (req, res) => {
 });
 
 router.get("/moi-cap-nhat", async (req, res) => {
-  const data = await fetchNewest(req?.query?.page || 1);
+  const data = await fetchMovie(req?.query?.page || 1);
   res.json({
     ...data,
     statusCode: 200,
   });
 });
 
-router.get("/moi-cap-nhat", async (req, res) => {
-  const data = await fetchNewest(req?.query?.page || 1);
+router.get("/tim-kiem", async (req, res) => {
+  const data = await fetchMovie(
+    req?.query?.page || 1,
+    req?.query?.search ? `search/${req?.query?.search}` : null
+  );
+  res.json({
+    ...data,
+    statusCode: 200,
+  });
+});
+
+router.get("/the-loai/:slug", async (req, res) => {
+  const data = await fetchMovie(req?.query?.page || 1, req?.params?.slug);
   res.json({
     ...data,
     statusCode: 200,
