@@ -24,3 +24,5 @@ app.use((req, res, next) => {
 app.listen(port, () => {
   console.log(`App running on http://localhost:${port}`);
 });
+
+module.exports = app;
