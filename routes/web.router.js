@@ -6,6 +6,8 @@ const {
   getFullUrl,
   fetchImageStream,
   fetchCategories,
+  fetchDetail,
+  fetchVideoStream,
 } = require("../services/hh3d.service");
 
 router.use((req, res, next) => {
@@ -16,6 +18,14 @@ router.use((req, res, next) => {
 router.get("/", (req, res) => {
   res.json({
     message: "Hello World!",
+    statusCode: 200,
+  });
+});
+
+router.get("/detail/:slug", async (req, res) => {
+  const data = await fetchDetail(req?.params?.slug);
+  res.json({
+    data,
     statusCode: 200,
   });
 });
@@ -43,6 +53,18 @@ router.get("/the-loai", async (req, res) => {
     statusCode: 200,
   });
 });
+
+router.get(
+  "/shared/:episodeId/:episodeName/:episodeSlug-sv:serverId.m3u8",
+  async (req, res) => {
+    return await fetchVideoStream(
+      res,
+      req?.params?.episodeId,
+      req?.params?.episodeName,
+      req?.params?.serverId
+    );
+  }
+);
 
 router.get("/:year/:month/:slug.:extention", async (req, res) => {
   return await fetchImageStream(req.path, res);
