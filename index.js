@@ -12,5 +12,5 @@ app.use(express.static("public"));
 app.use("/", webRouter);
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`App running on http://localhost:${port}`);
 });

@@ -7,10 +7,8 @@ const getFullUrl = (req) => {
   return `${req.protocol}://${req.get("host")}`;
 };
 
-const fetchMovie = async (page = 1, slug = null) => {
+const fetchMovie = async (path, page = 1, slug = null) => {
   const fullUrl = `${pathDec}/${slug ? slug + "/" : ""}page/${page}`;
-  console.log({ fullUrl });
-
   const htmlResponse = await axios.get(fullUrl);
   const html = htmlResponse.data ?? "";
   const $ = cheerio.load(html);
@@ -50,6 +48,7 @@ const fetchMovie = async (page = 1, slug = null) => {
       slug,
       episode,
       status,
+      detailUrl: global.fullUrl + "/chi-tiet/" + slug,
       thumbResponseUrl: formatImageThumb(thumbResponseUrl),
       thumbUrl: formatImageThumb(thumbUrl),
     });
@@ -62,8 +61,16 @@ const fetchMovie = async (page = 1, slug = null) => {
   return {
     data: articles,
     paginate: {
-      currentPage: page,
+      currentPage: parseInt(page),
       totalPage: parseInt(totalPage),
+      nextUrl:
+        parseInt(page) < parseInt(totalPage)
+          ? global.fullUrl + path + "?page=" + (parseInt(page) + 1)
+          : null,
+      prevUrl:
+        parseInt(page) > 1
+          ? global.fullUrl + path + "?page=" + (parseInt(page) - 1)
+          : null,
     },
   };
 };
@@ -107,6 +114,7 @@ const fetchCategories = async () => {
         categories.push({
           title: $(el).text().trim(),
           slug,
+          detailUrl: global.fullUrl + "/the-loai/" + slug,
         });
       });
   }
@@ -126,9 +134,11 @@ const fetchDetail = async (slug) => {
 
   const categories = [];
   $(".list_cate div a")?.each((index, categoryElement) => {
+    const catSlug = $(categoryElement)?.attr("href").split("/").reverse()[0];
     categories.push({
       title: $(categoryElement)?.text().trim(),
-      slug: $(categoryElement)?.attr("href").split("/").reverse()[0],
+      slug: catSlug,
+      detailUrl: global.fullUrl + "/the-loai/" + catSlug,
     });
   });
 

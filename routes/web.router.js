@@ -32,17 +32,66 @@ router.get("/chi-tiet/:slug", async (req, res) => {
 });
 
 router.get("/moi-cap-nhat", async (req, res) => {
-  const data = await fetchMovie(req?.query?.page || 1);
+  const data = await fetchMovie(req.path, req?.query?.page || 1);
   res.json({
     ...data,
     statusCode: 200,
   });
 });
 
-router.get("/tim-kiem", async (req, res) => {
+router.get("/phim-hoat-hinh-3d-le", async (req, res) => {
   const data = await fetchMovie(
+    req.path,
     req?.query?.page || 1,
-    req?.query?.search ? `search/${req?.query?.search}` : null
+    "phim-hoat-hinh-3d-le"
+  );
+  res.json({
+    ...data,
+    statusCode: 200,
+  });
+});
+
+router.get("/phim-dang-chieu", async (req, res) => {
+  const data = await fetchMovie(
+    req.path,
+    req?.query?.page || 1,
+    "phim-dang-chieu"
+  );
+  res.json({
+    ...data,
+    statusCode: 200,
+  });
+});
+
+router.get("/phim-hoan-thanh", async (req, res) => {
+  const data = await fetchMovie(
+    req.path,
+    req?.query?.page || 1,
+    "phim-hoan-thanh"
+  );
+  res.json({
+    ...data,
+    statusCode: 200,
+  });
+});
+
+router.get("/hh3d-dang-xem", async (req, res) => {
+  const data = await fetchMovie(
+    req.path,
+    req?.query?.page || 1,
+    "hh3d-dang-xem"
+  );
+  res.json({
+    ...data,
+    statusCode: 200,
+  });
+});
+
+router.get("/tim-kiem/:search", async (req, res) => {
+  const data = await fetchMovie(
+    req.path,
+    req?.query?.page || 1,
+    req?.query?.search ? `search/${req?.params?.search}` : null
   );
   res.json({
     ...data,
@@ -51,7 +100,11 @@ router.get("/tim-kiem", async (req, res) => {
 });
 
 router.get("/the-loai/:slug", async (req, res) => {
-  const data = await fetchMovie(req?.query?.page || 1, req?.params?.slug);
+  const data = await fetchMovie(
+    req.path,
+    req?.query?.page || 1,
+    req?.params?.slug
+  );
   res.json({
     ...data,
     statusCode: 200,
