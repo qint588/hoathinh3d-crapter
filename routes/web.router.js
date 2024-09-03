@@ -8,7 +8,7 @@ const {
   fetchCategories,
   fetchDetail,
   fetchVideoStream,
-} = require("../services/hh3d.service");
+} = require("../services/main.service");
 
 router.use((req, res, next) => {
   global.fullUrl = getFullUrl(req);
