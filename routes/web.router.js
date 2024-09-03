@@ -8,6 +8,7 @@ const {
   fetchCategories,
   fetchDetail,
   fetchVideoStream,
+  renderEmbed,
 } = require("../services/main.service");
 
 router.use((req, res, next) => {
@@ -69,6 +70,19 @@ router.get(
 router.get("/:year/:month/:slug.:extention", async (req, res) => {
   return await fetchImageStream(req.path, res);
 });
+
+router.get(
+  "/embed/:episodeId/:episodeName/:episodeSlug-sv:serverId",
+  async (req, res) => {
+    return await renderEmbed(
+      res,
+      req?.params?.episodeId,
+      req?.params?.episodeName,
+      req?.params?.episodeSlug,
+      req?.params?.serverId
+    );
+  }
+);
 
 router.use((req, res, next) => {
   res.status(404).json({

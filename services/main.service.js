@@ -219,7 +219,6 @@ const fetchVideoStream = async (res, episodeId, episodeName, serverId) => {
       }
     );
     const playerJavascript = playerResponse?.data?.data?.sources;
-    console.log(playerJavascript);
 
     const regex = /"file":\s*"([^"]+\.m3u8)"/;
     const match = playerJavascript.match(regex);
@@ -245,6 +244,29 @@ const fetchVideoStream = async (res, episodeId, episodeName, serverId) => {
   }
 };
 
+const renderEmbed = (res, episodeId, episodeName, episodeSlug, serverId) => {
+  const linkVideoStream =
+    global.fullUrl +
+    "/shared/" +
+    episodeId +
+    "/" +
+    episodeName +
+    "/" +
+    episodeSlug +
+    "-sv" +
+    serverId +
+    ".m3u8";
+
+  res.render("embed", {
+    data: {
+      episodeId,
+      episodeName,
+      serverId,
+      linkVideoStream,
+    },
+  });
+};
+
 module.exports = {
   fetchNewest,
   fetchImageStream,
@@ -252,4 +274,5 @@ module.exports = {
   getFullUrl,
   fetchVideoStream,
   fetchDetail,
+  renderEmbed,
 };
