@@ -8,71 +8,83 @@ const getFullUrl = (req) => {
 };
 
 const fetchMovie = async (path, page = 1, slug = null) => {
-  const fullUrl = `${pathDec}/${slug ? slug + "/" : ""}page/${page}`;
-  const htmlResponse = await axios.get(fullUrl);
-  const html = htmlResponse.data ?? "";
-  const $ = cheerio.load(html);
+  try {
+    const fullUrl = `${pathDec}/${slug ? slug + "/" : ""}page/${page}`;
+    const htmlResponse = await axios.get(fullUrl);
+    const html = htmlResponse.data ?? "";
+    const $ = cheerio.load(html);
 
-  const articles = [];
+    const articles = [];
 
-  $("article.grid-item").each((index, article) => {
-    const title = $(article).find(".entry-title")
-      ? $(article).find(".entry-title").text()
-      : "";
+    $("article.grid-item").each((index, article) => {
+      const title = $(article).find(".entry-title")
+        ? $(article).find(".entry-title").text()
+        : "";
 
-    const originalTitle = $(article).find(".original_title")
-      ? $(article).find(".original_title").text()
-      : "";
+      const originalTitle = $(article).find(".original_title")
+        ? $(article).find(".original_title").text()
+        : "";
 
-    const episode = $(article).find(".episode")
-      ? $(article).find(".episode").text()
-      : "";
+      const episode = $(article).find(".episode")
+        ? $(article).find(".episode").text()
+        : "";
 
-    const status = $(article).find(".status")
-      ? $(article).find(".status").text()
-      : "";
+      const status = $(article).find(".status")
+        ? $(article).find(".status").text()
+        : "";
 
-    let thumbResponseUrl = $(article).find(".img-responsive")
-      ? $(article).find(".img-responsive").attr("src")
-      : "";
+      let thumbResponseUrl = $(article).find(".img-responsive")
+        ? $(article).find(".img-responsive").attr("src")
+        : "";
 
-    const slug = $(article).find("a.halim-thumb")
-      ? $(article).find("a.halim-thumb").attr("href").split("/").reverse()[0]
-      : "";
+      const slug = $(article).find("a.halim-thumb")
+        ? $(article).find("a.halim-thumb").attr("href").split("/").reverse()[0]
+        : "";
 
-    const thumbUrl = thumbResponseUrl.replace(/-\d+x\d+(?=\.\w+$)/, "");
+      const thumbUrl = thumbResponseUrl.replace(/-\d+x\d+(?=\.\w+$)/, "");
 
-    articles.push({
-      title,
-      originalTitle,
-      slug,
-      episode,
-      status,
-      detailUrl: global.fullUrl + "/chi-tiet/" + slug,
-      thumbResponseUrl: formatImageThumb(thumbResponseUrl),
-      thumbUrl: formatImageThumb(thumbUrl),
+      articles.push({
+        title,
+        originalTitle,
+        slug,
+        episode,
+        status,
+        detailUrl: global.fullUrl + "/chi-tiet/" + slug,
+        thumbResponseUrl: formatImageThumb(thumbResponseUrl),
+        thumbUrl: formatImageThumb(thumbUrl),
+      });
     });
-  });
 
-  const totalPage = $(".page-numbers a.page-numbers:not(.next)")
-    ? $(".page-numbers a.page-numbers:not(.next)").last().text()
-    : 0;
+    const totalPage = $(".page-numbers a.page-numbers:not(.next)")
+      ? $(".page-numbers a.page-numbers:not(.next)").last().text()
+      : 0;
 
-  return {
-    data: articles,
-    paginate: {
-      currentPage: parseInt(page),
-      totalPage: parseInt(totalPage),
-      nextUrl:
-        parseInt(page) < parseInt(totalPage)
-          ? global.fullUrl + path + "?page=" + (parseInt(page) + 1)
-          : null,
-      prevUrl:
-        parseInt(page) > 1
-          ? global.fullUrl + path + "?page=" + (parseInt(page) - 1)
-          : null,
-    },
-  };
+    return {
+      data: articles,
+      paginate: {
+        currentPage: parseInt(page),
+        totalPage: parseInt(totalPage),
+        nextUrl:
+          parseInt(page) < parseInt(totalPage)
+            ? global.fullUrl + path + "?page=" + (parseInt(page) + 1)
+            : null,
+        prevUrl:
+          parseInt(page) > 1
+            ? global.fullUrl + path + "?page=" + (parseInt(page) - 1)
+            : null,
+      },
+    };
+  } catch (error) {
+    return {
+      data: [],
+      paginate: {
+        currentPage: null,
+        totalPage: null,
+        nextUrl: null,
+        prevUrl: null,
+      },
+    };
+  }
 };
 
 const fetchImageStream = async (path, res) => {
@@ -94,110 +106,117 @@ const fetchImageStream = async (path, res) => {
 
 const formatImageThumb = (thumb) => {
   const formatedToArray = thumb.split("/").reverse();
-
   return global.fullUrl + "/" + formatedToArray.slice(0, 3).reverse().join("/");
 };
 
 const fetchCategories = async () => {
-  const htmlResponse = await axios.get(pathDec);
-  const html = htmlResponse.data ?? "";
-  const $ = cheerio.load(html);
+  try {
+    const htmlResponse = await axios.get(pathDec);
+    const html = htmlResponse.data ?? "";
+    const $ = cheerio.load(html);
 
-  const categories = [];
+    const categories = [];
 
-  if ((categoryElement = $('a[title="Thể Loại"]'))) {
-    categoryElement
-      .parent()
-      .find("ul a")
-      .each((index, el) => {
-        const slug = $(el).attr("href").split("/").reverse()[0];
-        categories.push({
-          title: $(el).text().trim(),
-          slug,
-          detailUrl: global.fullUrl + "/the-loai/" + slug,
+    if ((categoryElement = $('a[title="Thể Loại"]'))) {
+      categoryElement
+        .parent()
+        .find("ul a")
+        .each((index, el) => {
+          const slug = $(el).attr("href").split("/").reverse()[0];
+          categories.push({
+            title: $(el).text().trim(),
+            slug,
+            detailUrl: global.fullUrl + "/the-loai/" + slug,
+          });
         });
-      });
-  }
+    }
 
-  return { data: categories };
+    return { data: categories };
+  } catch (error) {
+    return { data: [] };
+  }
 };
 
 const fetchDetail = async (slug) => {
-  const htmlResponse = await axios.get(`${pathDec}/${slug}`);
-  const html = htmlResponse.data ?? "";
-  const $ = cheerio.load(html);
+  try {
+    const htmlResponse = await axios.get(`${pathDec}/${slug}`);
+    const html = htmlResponse.data ?? "";
+    const $ = cheerio.load(html);
 
-  const title = $(".movie_name")?.text().trim();
-  const originalTitle = $(".org_title")?.text().trim();
-  const thumbResponseUrl = $(".info-movie .first img")?.attr("src");
-  const thumbUrl = thumbResponseUrl.replace(/-\d+x\d+(?=\.\w+$)/, "");
+    const title = $(".movie_name")?.text().trim();
+    const originalTitle = $(".org_title")?.text().trim();
+    const thumbResponseUrl = $(".info-movie .first img")?.attr("src");
+    const thumbUrl = thumbResponseUrl.replace(/-\d+x\d+(?=\.\w+$)/, "");
 
-  const categories = [];
-  $(".list_cate div a")?.each((index, categoryElement) => {
-    const catSlug = $(categoryElement)?.attr("href").split("/").reverse()[0];
-    categories.push({
-      title: $(categoryElement)?.text().trim(),
-      slug: catSlug,
-      detailUrl: global.fullUrl + "/the-loai/" + catSlug,
+    const categories = [];
+    $(".list_cate div a")?.each((index, categoryElement) => {
+      const catSlug = $(categoryElement)?.attr("href").split("/").reverse()[0];
+      categories.push({
+        title: $(categoryElement)?.text().trim(),
+        slug: catSlug,
+        detailUrl: global.fullUrl + "/the-loai/" + catSlug,
+      });
     });
-  });
 
-  const episodeCurrent = $(".new-ep")?.text().trim();
-  const [year, episodeTotal] = $(".hh3d-info div:nth-child(2)")
-    ?.text()
-    .trim()
-    .split("  ");
+    const episodeCurrent = $(".new-ep")?.text().trim();
+    const [year, episodeTotal] = $(".hh3d-info div:nth-child(2)")
+      ?.text()
+      .trim()
+      .split("  ");
 
-  const score = $(".hh3d-rate .score")?.text().trim();
-  const content = $(".item-content")?.html().trim();
+    const score = $(".hh3d-rate .score")?.text().trim();
+    const content = $(".item-content")?.html().trim();
 
-  let episodeList = [];
-  $(".halim-list-eps li")?.each((index, episodeElement) => {
-    const episodeSlug = $(episodeElement)
-      .find("span")
-      ?.attr("data-episode-slug");
-    const server = $(episodeElement).find("span")?.attr("data-server");
-    const episodeSlugConcat = `${slug}-sv${server}`;
-    const episodeId = $(episodeElement).find("span")?.attr("data-post-id");
-    episodeList.push({
-      title: $(episodeElement).find("span")?.text().trim(),
+    let episodeList = [];
+    $(".halim-list-eps li")?.each((index, episodeElement) => {
+      const episodeSlug = $(episodeElement)
+        .find("span")
+        ?.attr("data-episode-slug");
+      const server = $(episodeElement).find("span")?.attr("data-server");
+      const episodeSlugConcat = `${slug}-sv${server}`;
+      const episodeId = $(episodeElement).find("span")?.attr("data-post-id");
+      episodeList.push({
+        title: $(episodeElement).find("span")?.text().trim(),
+        slug,
+        embed:
+          global.fullUrl +
+          "/embed/" +
+          episodeId +
+          "/" +
+          episodeSlug +
+          "/" +
+          episodeSlugConcat,
+        link:
+          global.fullUrl +
+          "/shared/" +
+          episodeId +
+          "/" +
+          episodeSlug +
+          "/" +
+          episodeSlugConcat +
+          ".m3u8",
+      });
+    });
+
+    return {
+      title,
+      originalTitle,
       slug,
-      embed:
-        global.fullUrl +
-        "/embed/" +
-        episodeId +
-        "/" +
-        episodeSlug +
-        "/" +
-        episodeSlugConcat,
-      link:
-        global.fullUrl +
-        "/shared/" +
-        episodeId +
-        "/" +
-        episodeSlug +
-        "/" +
-        episodeSlugConcat +
-        ".m3u8",
-    });
-  });
-
-  return {
-    title,
-    originalTitle,
-    slug,
-    thumbResponseUrl: formatImageThumb(thumbResponseUrl),
-    thumbUrl: formatImageThumb(thumbUrl),
-    categories,
-    year,
-    range: `${score}/5`,
-    content,
-    episode: {
-      current: episodeCurrent,
-      total: episodeTotal,
-      data: episodeList,
-    },
-  };
+      thumbResponseUrl: formatImageThumb(thumbResponseUrl),
+      thumbUrl: formatImageThumb(thumbUrl),
+      categories,
+      year,
+      range: `${score}/5`,
+      content,
+      episode: {
+        current: episodeCurrent,
+        total: episodeTotal,
+        data: episodeList,
+      },
+    };
+  } catch (error) {
+    return null;
+  }
 };
 
 const fetchVideoStream = async (res, episodeId, episodeName, serverId) => {
