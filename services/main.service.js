@@ -1,7 +1,7 @@
 const { default: axios } = require("axios");
 const cheerio = require("cheerio");
 
-const pathDec = "https://hoathinh3d.run";
+const pathDec = "https://hoathinh3d.in";
 
 const getFullUrl = (req) => {
   return `${req.protocol}://${req.get("host")}`;
