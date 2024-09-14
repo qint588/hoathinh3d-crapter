@@ -1,14 +1,14 @@
 const express = require("express");
-const webRouter = require("./routes/web.router");
+const webRouter = require("./src/routes/web.router");
 const swaggerDocs = require("./swagger");
 
 const app = express();
 const port = 3000;
 
-require("./services/superbase.service");
+require("./src/services/superbase.service");
 
 app.set("view engine", "ejs");
-app.set("views", "./views");
+app.set("views", "./src/views");
 
 app.use(express.json());
 app.use(express.static("public"));
