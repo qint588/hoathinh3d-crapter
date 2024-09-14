@@ -5,6 +5,8 @@ const swaggerDocs = require("./swagger");
 const app = express();
 const port = 3000;
 
+require("./services/superbase.service");
+
 app.set("view engine", "ejs");
 app.set("views", "./views");
 
