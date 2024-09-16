@@ -1,5 +1,6 @@
 const { createClient } = require("@supabase/supabase-js");
 require("dotenv").config();
+const _ = require("lodash");
 
 const supabase = createClient(
   "https://ksxouurguemhhcuybuxq.supabase.co",
@@ -56,10 +57,79 @@ const getFilm = async (id) => {
   return error ? null : data;
 };
 
+const getWatchHistoryByFilmId = async (film, memberId) => {
+  const { data, error } = await supabase
+    .from("watch_histories")
+    .select("*")
+    .eq("member_id", memberId)
+    .eq("film_id", film.id)
+    .single();
+
+  if (data) {
+    return {
+      ...data,
+      is_first: false,
+    };
+  }
+
+  const { data: result } = await supabase
+    .from("watch_histories")
+    .insert({
+      episode: _.get(film, "episodes.0.server_data.0.name"),
+      server: _.get(film, "episodes.0.server_name"),
+      member_id: memberId,
+      film_id: film.id,
+    })
+    .select()
+    .single();
+
+  return {
+    ...result,
+    is_first: true,
+  };
+};
+
+const firstOrCreateMember = async (from) => {
+  const { data, error } = await supabase
+    .from("members")
+    .select("id")
+    .eq("user_id", from.id)
+    .single();
+
+  if (!data) {
+    const { data: result } = await supabase
+      .from("members")
+      .insert({
+        user_id: from.id,
+        is_bot: from.is_bot,
+        first_name: from.first_name,
+        username: from.username,
+        language_code: from.language_code,
+      })
+      .select()
+      .single();
+    return result;
+  }
+  const { data: result } = await supabase
+    .from("members")
+    .update({
+      is_bot: from.is_bot,
+      first_name: from.first_name,
+      username: from.username,
+      language_code: from.language_code,
+    })
+    .eq("id", data.id)
+    .select()
+    .single();
+  return result;
+};
+
 module.exports = {
   supabase,
   getFilms,
   getFilm,
+  firstOrCreateMember,
+  getWatchHistoryByFilmId,
 };
 
 // const fetchFilms = async (page = 1) => {

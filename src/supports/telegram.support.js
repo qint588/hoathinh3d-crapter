@@ -1,3 +1,9 @@
+const _ = require("lodash");
+const {
+  getWatchHistoryByFilmId,
+  firstOrCreateMember,
+} = require("../services/supabase.service");
+
 const renderButtonInlineQuery = (text, query = "") => {
   return {
     text,
@@ -42,7 +48,19 @@ const renderAnswerInlineItem = (item = null) => {
   };
 };
 
-const renderReplyMarkupFilm = (film, chatId = null, messageId = null) => {
+const renderReplyMarkupFilm = async (
+  film,
+  from,
+  chatId = null,
+  messageId = null
+) => {
+  const member = await firstOrCreateMember(from);
+  const watchHistoryFilm = await getWatchHistoryByFilmId(film, member.id);
+  console.table(watchHistoryFilm);
+  const labelContinuteWatch =
+    _.lowerCase(watchHistoryFilm.episode) == "full"
+      ? watchHistoryFilm.episode
+      : "Tập " + watchHistoryFilm.episode;
   return {
     inline_keyboard: [
       [
@@ -51,19 +69,18 @@ const renderReplyMarkupFilm = (film, chatId = null, messageId = null) => {
           "https://ophim17.cc/phim/" + film.slug
         ),
       ],
-      [
-        renderButtonCallback("◀️ Tập trước đó", `prev_episode_${film.id}`),
-        renderButtonCallback("➖", "unknown"),
-        renderButtonCallback("Tập tiếp theo ▶️", `next_episode_${film.id}`),
-      ],
-      [
-        renderButtonCallback("🔢 Tập phim", `episodes_${film.id}`),
-        renderButtonCallback(`🔄 Server (SV1)`, `server_${film.id}`),
-      ],
+      !film.is_first
+        ? [
+            renderButtonWebapp(
+              `🔘 Xem tiếp tục (${labelContinuteWatch})`,
+              "https://ophim17.cc/phim/" + film.slug
+            ),
+          ]
+        : [],
       [
         renderButtonCallback(
           "⭐ Thêm vào yêu thích",
-          `add_favourite_${film.id}`
+          `addFavourite:${film.id}`
         ),
       ],
       [
@@ -83,10 +100,15 @@ const renderButtonWebapp = (text, url) => {
   };
 };
 
+const renderButtonBackToFilmMarkup = (filmId) => {
+  return renderButtonCallback("🔙 Trở về", `backFilm:${filmId}`);
+};
+
 module.exports = {
   renderButtonInlineQuery,
   renderButtonCallback,
   renderAnswerInlineItem,
   renderButtonWebapp,
   renderReplyMarkupFilm,
+  renderButtonBackToFilmMarkup,
 };

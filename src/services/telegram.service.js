@@ -4,13 +4,28 @@ const {
   renderButtonInlineQuery,
   renderButtonCallback,
 } = require("../supports/telegram.support");
-const { getFilms, getFilm } = require("./superbase.service");
+const {
+  getFilms,
+  getFilm,
+  firstOrCreateMember,
+} = require("./supabase.service");
 const { renderAnswerInlineItem } = require("../supports/telegram.support");
 const _ = require("lodash");
 const { renderReplyMarkupFilm } = require("../supports/telegram.support");
 
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {
-  polling: true,
+  polling: false,
+  webHook: true,
+});
+global.bot = bot;
+
+const webhookUrl = process.env.TELEGRAM_APP_URL + "/telegram/webhook";
+bot.setWebHook(webhookUrl).then((res) => {
+  console.table({
+    message: "setup webhook success",
+    res,
+    webhookUrl,
+  });
 });
 
 bot.onText(/\/start/, async (msg) => {
@@ -48,6 +63,7 @@ bot.onText(/\/search/, async (msg) => {
 });
 
 bot.addListener("message", async (msg) => {
+  await firstOrCreateMember(msg.from);
   const isCommand = msg.text.startsWith("/");
   if (isCommand) return;
   bot.sendMessage(
@@ -84,7 +100,7 @@ bot.on("inline_query", async (query) => {
     films.length == 0
       ? [renderAnswerInlineItem()]
       : films.map((el) => renderAnswerInlineItem(el));
-  console.table(inlineQueryResponse);
+  console.table(inlineQueryResponse.map((el) => _.pick(el, "id", "title")));
 
   bot.answerInlineQuery(query.id, inlineQueryResponse, {
     cache_time: 1,
@@ -95,6 +111,19 @@ bot.on("inline_query", async (query) => {
 bot.onText(/\/watch (.+)/, async (msg, match) => {
   const filmId = match[1];
   const film = await getFilm(filmId);
+
+  if (!film) {
+    bot.sendMessage(
+      msg.chat.id,
+      `Rất tiết, chúng tôi không tìm thấy phim bạn yêu cầu\n\nVui lòng bạn có thể lựa chọn phim khác bắt nút "Tìm kiếm"`,
+      {
+        reply_markup: {
+          inline_keyboard: [[renderButtonInlineQuery("🔍 Tìm kiếm")]],
+        },
+      }
+    );
+    return;
+  }
 
   const labelCategory = "Thể loại: " + _.map(film.category, "name").join(", ");
   const labelCountry = "Quốc gia: " + _.map(film.country, "name").join(", ");
@@ -111,7 +140,12 @@ bot.onText(/\/watch (.+)/, async (msg, match) => {
 
   await bot.sendPhoto(msg.chat.id, film.thumb_url, {
     caption,
-    reply_markup: renderReplyMarkupFilm(film, msg.chat.id, msg.message_id),
+    reply_markup: await renderReplyMarkupFilm(
+      film,
+      msg.from,
+      msg.chat.id,
+      msg.message_id
+    ),
   });
 });
 
