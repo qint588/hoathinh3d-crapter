@@ -30,6 +30,6 @@ html, body {
   grid-gap: .25rem;
 }
 
-.list-episode {
+.list-episode a {
   max-width: 6rem;
 }

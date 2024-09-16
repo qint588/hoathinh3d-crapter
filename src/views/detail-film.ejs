@@ -23,14 +23,17 @@
           </div>
         </div>
         <div class="p-2 text-right">
-          <button 
+          <a 
+            href="<%= currentUrl %>?episode_index=<%= query.server_index %>&server_index=<%= query.episode_index == 0 ? 0 : query.episode_index - 1 %>" 
             class="btn btn-secondary btn-sm rounded-2"
             <%= query.episode_index == 0 ? 'disabled' : '' %>
-          >Tập trước</button>
-          <button class="btn btn-secondary btn-sm rounded-2"
+          >Tập trước</a>
+          <a
+            href="<%= currentUrl %>?server_index=<%= query.server_index %>&episode_index=<%= query.episode_index == query.episode_index_last ? query.episode_index_last : + query.episode_index + 1 %>" 
+            class="btn btn-secondary btn-sm rounded-2"
             <%= query.episode_index_last == query.episode_index  ? 'disabled' : '' %>
-          >Tập tiếp theo</button>
-          <button class="btn btn-secondary btn-sm rounded-2" disabled>Yêu thích</button>
+          >Tập tiếp theo</a>
+          <!-- <button class="btn btn-secondary btn-sm rounded-2" disabled>Yêu thích</button> -->
         </div>
         <div class="mt-3">
           <% episodes.forEach((episode, index) => {%>

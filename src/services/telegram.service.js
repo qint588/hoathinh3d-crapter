@@ -28,7 +28,7 @@ bot.setWebHook(webhookUrl).then((res) => {
   });
 });
 
-this.bot
+bot
   .setMyCommands(
     [
       {
