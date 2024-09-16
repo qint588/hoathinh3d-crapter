@@ -28,7 +28,27 @@ bot.setWebHook(webhookUrl).then((res) => {
   });
 });
 
+this.bot
+  .setMyCommands(
+    [
+      {
+        command: "start",
+        description: "🍿 Bắt đầu",
+      },
+      {
+        command: "search",
+        description: "🔍 Tìm kiếm",
+      },
+    ],
+    {
+      scope: { type: "default" },
+    }
+  )
+  .then((response) => console.log("DEBUG:", response))
+  .catch(console.log);
+
 bot.onText(/\/start/, async (msg) => {
+  await bot.sendChatAction(msg.chat.id, "typing");
   await bot.sendMessage(
     msg.chat.id,
     `🍿 Xin chào các bạn yêu thích phim!\n\n🔍 Để tìm kiếm, sử dụng các nút bên dưới hoặc gửi tên phim qua tin nhắn`,
@@ -41,21 +61,22 @@ bot.onText(/\/start/, async (msg) => {
 });
 
 bot.onText(/\/search/, async (msg) => {
-  bot.sendMessage(
+  await bot.sendChatAction(msg.chat.id, "typing");
+  await bot.sendMessage(
     msg.chat.id,
     'Để tìm bộ phim bạn cần, hãy nhấp vào nút "Tìm kiếm" và nhập yêu cầu của bạn hoặc chỉ cần gửi yêu cầu của bạn qua tin nhắn\n\nNếu nó không hoạt động, hãy đọc hướng dẫn',
     {
       reply_markup: {
         inline_keyboard: [
           [renderButtonInlineQuery("🔍 Tìm kiếm")],
-          [
-            renderButtonInlineQuery("🗂 Thể loại", "#categories"),
-            renderButtonCallback("🈁 Bộ lọc", "create_filter"),
-          ],
-          [
-            renderButtonInlineQuery("🕐 Lịch sử", "#history"),
-            renderButtonInlineQuery("⭐ Yêu thích", "#favourite"),
-          ],
+          // [
+          //   renderButtonInlineQuery("🗂 Thể loại", "#categories"),
+          //   renderButtonCallback("🈁 Bộ lọc", "create_filter"),
+          // ],
+          // [
+          //   renderButtonInlineQuery("🕐 Lịch sử", "#history"),
+          //   renderButtonInlineQuery("⭐ Yêu thích", "#favourite"),
+          // ],
         ],
       },
     }
@@ -63,6 +84,7 @@ bot.onText(/\/search/, async (msg) => {
 });
 
 bot.addListener("message", async (msg) => {
+  await bot.sendChatAction(msg.chat.id, "typing");
   await firstOrCreateMember(msg.from);
   const isCommand = msg.text.startsWith("/");
   if (isCommand) return;
@@ -73,14 +95,14 @@ bot.addListener("message", async (msg) => {
       reply_markup: {
         inline_keyboard: [
           [renderButtonInlineQuery("🔍 Tìm kiếm", msg.text)],
-          [
-            renderButtonInlineQuery("🗂 Thể loại", "#categories"),
-            renderButtonCallback("🈁 Bộ lọc", "create_filter"),
-          ],
-          [
-            renderButtonInlineQuery("🕐 Lịch sử", "#history"),
-            renderButtonInlineQuery("⭐ Yêu thích", "#favourite"),
-          ],
+          // [
+          //   renderButtonInlineQuery("🗂 Thể loại", "#categories"),
+          //   renderButtonCallback("🈁 Bộ lọc", "create_filter"),
+          // ],
+          // [
+          //   renderButtonInlineQuery("🕐 Lịch sử", "#history"),
+          //   renderButtonInlineQuery("⭐ Yêu thích", "#favourite"),
+          // ],
         ],
       },
     }
@@ -110,6 +132,7 @@ bot.on("inline_query", async (query) => {
 
 bot.onText(/\/watch (.+)/, async (msg, match) => {
   const filmId = match[1];
+  await bot.sendChatAction(msg.chat.id, "typing");
   const film = await getFilm(filmId);
 
   if (!film) {

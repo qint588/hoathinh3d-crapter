@@ -35,3 +35,25 @@ videoPlayer.addButton(
   },
   "Lùi 20s"
 );
+
+Telegram.WebApp.expand();
+Telegram.WebApp.enableClosingConfirmation();
+Telegram.WebApp.MainButton.setParams({
+  text: "Đóng",
+  is_visible: true,
+}).onClick(() => {
+  Telegram.WebApp.showPopup(
+    {
+      message: "Are you sure?",
+      buttons: [
+        { id: "close", type: "destructive", text: "Tiếp tục" },
+        { type: "cancel" },
+      ],
+    },
+    function (buttonId) {
+      if (buttonId === "close") {
+        Telegram.WebApp.close();
+      }
+    }
+  );
+});

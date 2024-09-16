@@ -66,26 +66,26 @@ const renderReplyMarkupFilm = async (
       [
         renderButtonWebapp(
           "↗️ Xem ngay",
-          "https://ophim17.cc/phim/" + film.slug
+          process.env.TELEGRAM_APP_URL + "/telegram/detail/" + film.id
         ),
       ],
-      !film.is_first
-        ? [
-            renderButtonWebapp(
-              `🔘 Xem tiếp tục (${labelContinuteWatch})`,
-              "https://ophim17.cc/phim/" + film.slug
-            ),
-          ]
-        : [],
-      [
-        renderButtonCallback(
-          "⭐ Thêm vào yêu thích",
-          `addFavourite:${film.id}`
-        ),
-      ],
+      // !film.is_first
+      //   ? [
+      //       renderButtonWebapp(
+      //         `🔘 Xem tiếp tục (${labelContinuteWatch})`,
+      //         "https://ophim17.cc/phim/" + film.slug
+      //       ),
+      //     ]
+      //   : [],
+      // [
+      //   renderButtonCallback(
+      //     "⭐ Thêm vào yêu thích",
+      //     `addFavourite:${film.id}`
+      //   ),
+      // ],
       [
         renderButtonInlineQuery("🕐 Lịch sử", "#history"),
-        renderButtonInlineQuery("🔍 Tìm kiếm"),
+        renderButtonInlineQuery("🔍 Tìm kiếm phim khác"),
       ],
     ],
   };
