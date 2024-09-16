@@ -1,8 +1,13 @@
 html, body {
-  font-size: 15px;  
   touch-action: manipulation;
-  overflow: hidden;
 }
+
+.sticky {
+  top: 0;
+  position: sticky;
+  z-index: 10;
+}
+
 .iframe {
   width: 100%;
   position: relative;
@@ -32,4 +37,43 @@ html, body {
 
 .list-episode a {
   max-width: 6rem;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid #FFF;
+  border-right: 3px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+  opacity: 1;
+  transition: opacity .2 cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+} 
+
+.loading {
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading .hidden {
+  opacity: 0;
+  visibility: hidden;
 }

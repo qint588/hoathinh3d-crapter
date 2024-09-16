@@ -13,9 +13,9 @@ videoPlayer.setup({
   height: "100%",
   primary: "html5",
   displaytitle: false,
-  autostart: true,
+  // autostart: true,
   playbackRateControls: true,
-  mute: false,
+  // mute: false,
   horizontalVolumeSlider: true,
 });
 
@@ -56,4 +56,20 @@ Telegram.WebApp.MainButton.setParams({
       }
     }
   );
+});
+
+$(document).ready(function () {
+  setTimeout(() => {
+    $(".loading")
+      .css({ opacity: 0, zIndex: 0 }) /*set opacity to 0*/
+      .delay(2) /*wait 2 seconds*/
+      .animate({ opacity: 1 }); /*animate in opacity*/
+  }, 1000);
+
+  $("a").click(function () {
+    $(".loading")
+      .css({ opacity: 1, zIndex: 100 }) /*set opacity to 0*/
+      .delay(2) /*wait 2 seconds*/
+      .animate({ opacity: 0 }); /*animate in opacity*/
+  });
 });
