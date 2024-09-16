@@ -21,3 +21,5 @@ app.use("/telegram", telegramRouter);
 app.listen(port, () => {
   console.log(`App running on http://localhost:${port}`);
 });
+
+module.exports = app;
